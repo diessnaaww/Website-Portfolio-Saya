@@ -34,7 +34,7 @@ const i18n = {
     internship: "MAGANG · PERENCANAAN DAERAH", bappedaRole: "Staf Administrasi & Perencanaan",
     bappedaDesc: "Audit KAK/RSK tahun anggaran 2025–2026, dukungan Musrenbang RPJMD dan Forum Perangkat Daerah, serta rekonsiliasi data SIPD dengan presisi 100%.",
     viewDocumentation: "Dokumentasi", viewCertificate: "Sertifikat",
-    teachingAssistant: "ASISTENSI AKADEMIK", assistantRole: "Asisten Dosen Keuangan Regional",
+    teachingAssistant: "ASISTENSI AKADEMIK", assistantRole: "Asisten Lab. Praktikum",
     assistantDesc: "Mendampingi praktikum, membantu mahasiswa memahami materi, dan mendukung kelancaran kegiatan akademik Keuangan Regional.",
     teaching: "Pengajaran", editorialExperience: "EDITORIAL · JURNAL",
     editorialRole: "Sekretaris Editorial BEP Journal",
@@ -914,3 +914,510 @@ document.querySelectorAll('.document-button').forEach(button => {
     }
   });
 });
+
+// Fungsi Membuka Modal Pop-Up
+function openModal(modalId, titleText) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    if (titleText && modalId === 'modal-dokumentasi') {
+      document.getElementById('dok-title').innerText = '📷 ' + titleText;
+    } else if (titleText && modalId === 'modal-sertifikat') {
+      document.getElementById('cert-title').innerText = '📜 ' + titleText;
+    }
+    modal.showModal();
+  }
+}
+
+// Fungsi Menutup Modal Pop-Up
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.close();
+  }
+}
+
+// ==========================================
+// SISTEM PROTEKSI KEAMANAN DATA PRIBADI
+// ==========================================
+
+// 1. Mematikan Klik Kanan pada Seluruh Halaman Modal
+document.addEventListener('contextmenu', function (e) {
+  if (e.target.closest('.protected-modal') || e.target.classList.contains('protected-img')) {
+    e.preventDefault();
+    alert('Akses klik kanan dinonaktifkan untuk melindungi kerahasiaan dokumen pribadi.');
+  }
+});
+
+// 2. Mematikan Kombinasi Tombol Pintas (Ctrl+S, Ctrl+P, Ctrl+U, F12, PrintScreen)
+document.addEventListener('keydown', function (e) {
+  // Blokir Ctrl+S (Save), Ctrl+P (Print), Ctrl+U (View Source), Ctrl+Shift+I (Inspect element), F12
+  if (
+    (e.ctrlKey && (e.key === 's' || e.key === 'S' || e.key === 'p' || e.key === 'P' || e.key === 'u' || e.key === 'U')) ||
+    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j')) ||
+    e.key === 'F12'
+  ) {
+    e.preventDefault();
+    alert('Fitur ini dinonaktifkan demi perlindungan data pribadi.');
+    return false;
+  }
+
+  // Efek Blur Sementara Jika Menekan Tombol PrintScreen
+  if (e.key === 'PrintScreen') {
+    const images = document.querySelectorAll('.protected-img');
+    images.forEach(img => img.classList.add('blur-protection'));
+    navigator.clipboard.writeText(''); // Kosongkan clipboard
+    alert('Tangkapan layar dibatasi untuk menjaga keamanan dokumen.');
+    setTimeout(() => {
+      images.forEach(img => img.classList.remove('blur-protection'));
+    }, 3000);
+  }
+});
+
+// 3. Sensor Otomatis (Blur) Saat Peramban Kehilangan Fokus / Pengunjung Berpindah Aplikasi
+window.addEventListener('blur', function () {
+  const images = document.querySelectorAll('.protected-img');
+  images.forEach(img => img.classList.add('blur-protection'));
+});
+
+window.addEventListener('focus', function () {
+  const images = document.querySelectorAll('.protected-img');
+  images.forEach(img => img.classList.remove('blur-protection'));
+});
+
+// Fungsi untuk membuka modal pop-up
+function openModal(modalId, titleText) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    if (titleText && modalId === 'modal-dokumentasi') {
+      const dokTitle = document.getElementById('dok-title');
+      if (dokTitle) dokTitle.innerText = '📷 ' + titleText;
+    } else if (titleText && modalId === 'modal-sertifikat') {
+      const certTitle = document.getElementById('cert-title');
+      if (certTitle) certTitle.innerText = '📜 ' + titleText;
+    }
+    modal.showModal();
+  }
+}
+
+// Fungsi untuk menutup modal pop-up
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.close();
+  }
+}
+
+// ==========================================
+// 1. LOGIKA SLIDER SERTIFIKASI (4 SLIDE)
+// ==========================================
+let currentCertSlide = 0;
+const totalCertSlides = 4; // 13 sertifikat (4 + 4 + 4 + 1)
+
+function updateCertSlider() {
+  const slides = document.querySelectorAll('#certifications .cert-slide');
+  const dots = document.querySelectorAll('#certifications .cert-dot');
+  const prevBtn = document.getElementById('cert-prev-btn');
+  const nextBtn = document.getElementById('cert-next-btn');
+  const indicator = document.getElementById('cert-slide-indicator');
+
+  slides.forEach((slide, index) => {
+    if (index === currentCertSlide) {
+      slide.classList.add('cert-slide-active');
+    } else {
+      slide.classList.remove('cert-slide-active');
+    }
+  });
+
+  dots.forEach((dot, index) => {
+    if (index === currentCertSlide) {
+      dot.classList.add('cert-dot-active');
+    } else {
+      dot.classList.remove('cert-dot-active');
+    }
+  });
+
+  if (indicator) {
+    indicator.innerText = `${currentCertSlide + 1} / ${totalCertSlides}`;
+  }
+
+  if (prevBtn) prevBtn.disabled = currentCertSlide === 0;
+  if (nextBtn) nextBtn.disabled = currentCertSlide === totalCertSlides - 1;
+}
+
+function moveCertSlide(direction) {
+  currentCertSlide += direction;
+  if (currentCertSlide < 0) currentCertSlide = 0;
+  if (currentCertSlide >= totalCertSlides) currentCertSlide = totalCertSlides - 1;
+  updateCertSlider();
+}
+
+function goToCertSlide(slideIndex) {
+  currentCertSlide = slideIndex;
+  updateCertSlider();
+}
+
+// ==========================================
+// 2. MODAL & KEAMANAN SERTIFIKAT TERPROTEKSI
+// ==========================================
+function openCertModal(title, imageSrc) {
+  const modal = document.getElementById('cert-viewer-modal');
+  const modalTitle = document.getElementById('cert-viewer-title');
+  const modalImg = document.getElementById('cert-viewer-img');
+
+  if (modal) {
+    if (modalTitle) modalTitle.innerText = '📜 ' + title;
+    if (modalImg) modalImg.src = imageSrc;
+    modal.showModal();
+  }
+}
+
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) modal.close();
+}
+
+// Block Klik Kanan pada Modal & Foto
+document.addEventListener('contextmenu', function (e) {
+  if (e.target.closest('#cert-viewer-modal') || e.target.classList.contains('protected-img')) {
+    e.preventDefault();
+    alert('Akses klik kanan dinonaktifkan untuk melindungi kerahasiaan dokumen pribadi.');
+  }
+});
+
+// Block Tombol Pintas Keyboard (Print, Save, Inspect, PrintScreen)
+document.addEventListener('keydown', function (e) {
+  if (
+    (e.ctrlKey && (e.key === 's' || e.key === 'S' || e.key === 'p' || e.key === 'P' || e.key === 'u' || e.key === 'U')) ||
+    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j')) ||
+    e.key === 'F12'
+  ) {
+    e.preventDefault();
+    alert('Fitur ini dinonaktifkan demi perlindungan data pribadi.');
+    return false;
+  }
+
+  // Sensor Blur Saat Menekan Tombol PrintScreen
+  if (e.key === 'PrintScreen') {
+    const images = document.querySelectorAll('.protected-img');
+    images.forEach(img => img.classList.add('blur-protection'));
+    navigator.clipboard.writeText('');
+    alert('Tangkapan layar dibatasi untuk menjaga keamanan dokumen.');
+    setTimeout(() => {
+      images.forEach(img => img.classList.remove('blur-protection'));
+    }, 3000);
+  }
+});
+
+// Sensor Blur Otomatis Saat Peramban Kehilangan Fokus / Pengunjung Berpindah Aplikasi
+window.addEventListener('blur', function () {
+  const images = document.querySelectorAll('.protected-img');
+  images.forEach(img => img.classList.add('blur-protection'));
+});
+
+window.addEventListener('focus', function () {
+  const images = document.querySelectorAll('.protected-img');
+  images.forEach(img => img.classList.remove('blur-protection'));
+});
+
+// Fungsi untuk membuka Modal Sertifikat di Section 06
+function openCertModal(title, imageSrc) {
+  const modal = document.getElementById('cert-viewer-modal');
+  const modalTitle = document.getElementById('cert-viewer-title');
+  const modalImg = document.getElementById('cert-viewer-img');
+
+  if (modal) {
+    if (modalTitle) modalTitle.textContent = '📜 ' + title;
+    if (modalImg) modalImg.src = imageSrc;
+
+    // Membuka dialog modal (native HTML5 dialog)
+    if (typeof modal.showModal === 'function') {
+      modal.showModal();
+    } else {
+      modal.setAttribute('open', '');
+    }
+  } else {
+    console.error('Modal #cert-viewer-modal tidak ditemukan di HTML.');
+  }
+}
+
+// Fungsi umum untuk menutup modal dialog
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    if (typeof modal.close === 'function') {
+      modal.close();
+    } else {
+      modal.removeAttribute('open');
+    }
+  }
+}
+
+// Menutup modal jika pengguna mengklik area luar modal (backdrop)
+document.addEventListener('click', (event) => {
+  const modal = document.getElementById('cert-viewer-modal');
+  if (modal && event.target === modal) {
+    closeModal('cert-viewer-modal');
+  }
+});
+
+// Memastikan fungsi terdaftar secara global di window
+window.openCertModal = function(title, imageSrc) {
+  const modal = document.getElementById('cert-viewer-modal');
+  const modalTitle = document.getElementById('cert-viewer-title');
+  const modalImg = document.getElementById('cert-viewer-img');
+
+  if (!modal) {
+    console.error('Modal #cert-viewer-modal tidak ditemukan.');
+    return;
+  }
+
+  if (modalTitle) modalTitle.textContent = '📜 ' + title;
+  if (modalImg) modalImg.src = imageSrc;
+
+  if (typeof modal.showModal === 'function') {
+    modal.showModal();
+  } else {
+    modal.setAttribute('open', '');
+  }
+};
+
+window.closeModal = function(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    if (typeof modal.close === 'function') {
+      modal.close();
+    } else {
+      modal.removeAttribute('open');
+    }
+  }
+};
+
+// Menutup modal ketika area luar (backdrop) diklik
+document.addEventListener('click', function(event) {
+  const modal = document.getElementById('cert-viewer-modal');
+  if (modal && event.target === modal) {
+    window.closeModal('cert-viewer-modal');
+  }
+});
+
+// Path lokasi file PDF CV Bahasa Indonesia & Inggris
+const cvFiles = {
+  id: 'assets/IND_ CV_ ADIS_ DATA dan DIGITAL.pdf', // Ubah ke 'assets/IND_ CV_ ADIS_ DATA dan DIGITAL_3.pdf' jika file tersimpan dalam folder assets
+  en: 'assets/ENG_ CV_ ADIS_ DATA dan DIGITAL.pdf'
+};
+
+// Fungsi Membuka Modal CV (Default memuat versi Bahasa Indonesia)
+function openCVPreview(defaultLang = 'id') {
+  const dialog = document.getElementById('cv-preview-dialog');
+  if (dialog) {
+    dialog.showModal();
+    switchCVLanguage(defaultLang);
+  }
+}
+
+// Fungsi Menutup Modal CV
+function closeCVPreview() {
+  const dialog = document.getElementById('cv-preview-dialog');
+  if (dialog) {
+    dialog.close();
+  }
+}
+
+// Fungsi Mengganti Versi Bahasa CV & Highlight Tombol Aktif
+function switchCVLanguage(lang) {
+  const iframe = document.getElementById('cv-iframe');
+  const btnId = document.getElementById('btn-cv-id');
+  const btnEn = document.getElementById('btn-cv-en');
+
+  if (!iframe || !btnId || !btnEn) return;
+
+  if (lang === 'id') {
+    // Memuat file PDF versi Bahasa Indonesia ke dalam iFrame
+    iframe.src = cvFiles.id + '#toolbar=0&navpanes=0';
+
+    // Highlight visual tombol CV Indonesia (Aktif)
+    btnId.style.backgroundColor = '#fbbf24';
+    btnId.style.color = '#0a192f';
+    btnId.style.fontWeight = '700';
+
+    // Reset gaya tombol CV Inggris (Non-Aktif)
+    btnEn.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+    btnEn.style.color = '#ffffff';
+    btnEn.style.fontWeight = '500';
+
+  } else if (lang === 'en') {
+    // Memuat file PDF versi Bahasa Inggris ke dalam iFrame
+    iframe.src = cvFiles.en + '#toolbar=0&navpanes=0';
+
+    // Highlight visual tombol CV Inggris (Aktif)
+    btnEn.style.backgroundColor = '#fbbf24';
+    btnEn.style.color = '#0a192f';
+    btnEn.style.fontWeight = '700';
+
+    // Reset gaya tombol CV Indonesia (Non-Aktif)
+    btnId.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+    btnId.style.color = '#ffffff';
+    btnId.style.fontWeight = '500';
+  }
+}
+
+// ==========================================
+// FUNGSI DINAMIS DOKUMENTASI (2 FOTO) & SERTIFIKAT (1 FOTO)
+// ==========================================
+
+/**
+ * Membuka Modal Dokumentasi dan merender 2 foto kegiatan
+ * @param {string} titleText - Judul dokumentasi
+ * @param {string} img1 - Path/URL foto pertama
+ * @param {string} img2 - Path/URL foto kedua
+ */
+function openDocModal(titleText, img1, img2) {
+  const modal = document.getElementById('modal-dokumentasi');
+  const dokTitle = document.getElementById('dok-title');
+  const gallery = document.getElementById('dok-gallery');
+
+  if (modal && gallery) {
+    if (dokTitle) dokTitle.innerText = '📷 ' + titleText;
+    
+    // Masukkan 2 foto ke dalam galeri modal
+    gallery.innerHTML = `
+      <img src="${img1}" alt="${titleText} - Foto 1" class="protected-img" ondragstart="return false;" oncontextmenu="return false;">
+      <img src="${img2}" alt="${titleText} - Foto 2" class="protected-img" ondragstart="return false;" oncontextmenu="return false;">
+    `;
+    
+    modal.showModal();
+  }
+}
+
+/**
+ * Membuka Modal Sertifikat dan merender 1 foto sertifikat
+ * @param {string} titleText - Judul sertifikat
+ * @param {string} certImg - Path/URL foto sertifikat
+ */
+function openCertModalSingle(titleText, certImg) {
+  const modal = document.getElementById('modal-sertifikat');
+  const certTitle = document.getElementById('cert-title');
+  const gallery = document.getElementById('cert-gallery');
+
+  if (modal && gallery) {
+    if (certTitle) certTitle.innerText = '📜 ' + titleText;
+    
+    // Masukkan 1 foto sertifikat ke dalam galeri modal
+    gallery.innerHTML = `
+      <img src="${certImg}" alt="${titleText}" class="protected-img" ondragstart="return false;" oncontextmenu="return false;">
+    `;
+    
+    modal.showModal();
+  }
+}
+
+/**
+ * Menutup Modal berdasarkan ID
+ * @param {string} modalId - ID elemen dialog modal
+ */
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.close();
+  }
+}
+
+// ==========================================
+// FUNGSI MEMBUKA MODAL SERTIFIKAT (SUPPORT PDF & GAMBAR)
+// ==========================================
+window.openCertModal = function(title, fileSrc) {
+  const modal = document.getElementById('cert-viewer-modal');
+  const modalTitle = document.getElementById('cert-viewer-title');
+  const modalContent = document.getElementById('cert-viewer-content');
+
+  if (!modal) {
+    console.error('Modal #cert-viewer-modal tidak ditemukan.');
+    return;
+  }
+
+  if (modalTitle) modalTitle.textContent = '📜 ' + title;
+
+  // Periksa apakah file berformat PDF
+  const isPDF = fileSrc.toLowerCase().endsWith('.pdf');
+
+  if (modalContent) {
+    if (isPDF) {
+      // Rendere iFrame untuk berkas PDF (menyetel toolbar=0 untuk menyembunyikan bilah unduh peramban)
+      modalContent.innerHTML = `
+        <iframe src="${fileSrc}#toolbar=0&navpanes=0" 
+                style="width: 100%; height: 500px; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; background: #ffffff;" 
+                title="${title}">
+        </iframe>`;
+    } else {
+      // Render elemen <img> untuk berkas gambar (JPG/PNG)
+      modalContent.innerHTML = `
+        <img src="${fileSrc}" 
+             alt="${title}" 
+             style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" 
+             ondragstart="return false;" 
+             oncontextmenu="return false;">`;
+    }
+  }
+
+  // Tampilkan dialog modal
+  if (typeof modal.showModal === 'function') {
+    modal.showModal();
+  } else {
+    modal.setAttribute('open', '');
+  }
+};
+
+// Aliaskan ke openCertModalSingle agar tombol sertifikat di Pengalaman Kerja mendukung PDF
+window.openCertModalSingle = function(titleText, fileSrc) {
+  window.openCertModal(titleText, fileSrc);
+};
+
+// ==========================================
+// FUNGSI MEMBUKA MODAL SERTIFIKAT (PDF & GAMBAR)
+// ==========================================
+window.openCertModal = function(title, fileSrc) {
+  const modal = document.getElementById('cert-viewer-modal');
+  const modalTitle = document.getElementById('cert-viewer-title');
+  const modalContent = document.getElementById('cert-viewer-content');
+
+  if (!modal) {
+    console.error('Modal #cert-viewer-modal tidak ditemukan.');
+    return;
+  }
+
+  if (modalTitle) modalTitle.textContent = '📜 ' + title;
+
+  // Memeriksa apakah berkas berformat PDF
+  const isPDF = fileSrc.toLowerCase().endsWith('.pdf');
+
+  if (modalContent) {
+    if (isPDF) {
+      // Tampilkan PDF di dalam iframe (toolbar=0 untuk proteksi/penyembunyian bilah unduh peramban)
+      modalContent.innerHTML = `
+        <iframe src="${fileSrc}#toolbar=0&navpanes=0" 
+                style="width: 100%; height: 500px; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; background: #ffffff;" 
+                title="${title}">
+        </iframe>`;
+    } else {
+      // Tampilkan sebagai elemen gambar jika formatnya JPG/PNG
+      modalContent.innerHTML = `
+        <img src="${fileSrc}" 
+             alt="${title}" 
+             style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" 
+             ondragstart="return false;" 
+             oncontextmenu="return false;">`;
+    }
+  }
+
+  // Tampilkan dialog modal
+  if (typeof modal.showModal === 'function') {
+    modal.showModal();
+  } else {
+    modal.setAttribute('open', '');
+  }
+};
+
+// Alias fungsi openCertModalSingle agar kompatibel dengan pemanggilan dari bagian lain
+window.openCertModalSingle = function(titleText, fileSrc) {
+  window.openCertModal(titleText, fileSrc);
+};
